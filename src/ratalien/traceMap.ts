@@ -27,10 +27,13 @@ export class TraceMap {
   }
 
   setMapData(map: Map<string, number>) {
+    console.log('MAPP')
     this.matrixMap = map
   }
 
   addObjectData(object: MapObject){
+    console.log('addObjData')
+    console.time('addObjData')
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
         const getMapValue = this.matrixMap.get(`${object.position.y + i}-${object.position.x + j}`)
@@ -38,23 +41,27 @@ export class TraceMap {
         this.matrixMap.set(`${object.position.y + i}-${object.position.x + j}`, newValue === 1 ? 1 : newValue + 4)
       }
     }
+    console.timeEnd('addObjData')
   }
 
   activeUnitCoordinates(unit:UnitObject,coordinates: Record<string, number>) {
+    console.log("activeUnitCoordinates",unit,coordinates)
     this.activeUnits.length>0 && (this.activeUnits.length=0)
-    console.log(this.activeUnits,'ActiveUnits')
-   const rrr= this.activeUnitsObj.filter((el)=>el===unit)
-    console.log('isHere',rrr)
-    this.activeUnitsObj.push(unit)
+  //  console.log(this.activeUnits,'ActiveUnits')
+    //this.activeUnitsObj.push(unit)
     this.activeUnits.push(coordinates)
+
   }
 
 //finish index=50
   setPathFinishPoint(coordinates: Record<string, number>) {
-
+    console.log('setPathFinishPoint')
+    //console.log('Active-----units',this.activeUnits)
     this.finishTileCoordinates = coordinates
     this.matrixMap.set(`${coordinates.y}-${coordinates.x}`, 50);
+    console.time('path')
     this.path = this.buildPath()
+    console.timeEnd('path')
     this.matrixMap.set(`${coordinates.y}-${coordinates.x}`, 1);
   }
 
@@ -112,7 +119,8 @@ export class TraceMap {
           ind++
         } while (!isFinished)
       }
-      makeStep(this.activeUnits[this.activeUnits.length-1])
+
+ makeStep(this.activeUnits[0])
      // console.log('###', pathSteps)
 
       function getPath() {
@@ -136,11 +144,12 @@ export class TraceMap {
      // this.activeUnitsObj[0].position={x:pathArray[pathArray.length-1].x,y:pathArray[pathArray.length-1].y}
       return pathArray
     }
-
     return pathForOne(0)
   }
 
   getPath() {
+    console.log(this.activeUnitsObj)
+    console.log("GETPAth")
     return this.path
   }
 
@@ -149,5 +158,16 @@ export class TraceMap {
     this.activeUnits = []
     this.finishTileCoordinates=null
 
+  }
+
+  activeMultiUnitsCoordinates(unitsMiltiArray: UnitObject[]) {
+console.log(unitsMiltiArray)
+    this.activeUnitsObj=unitsMiltiArray
+  }
+  getActiveUnits(){
+    return this.activeUnitsObj
+  }
+  isMultiUnits(){
+    return this.activeUnitsObj.length>0 && true
   }
 }
