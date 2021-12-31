@@ -75,17 +75,18 @@ export class UnitObject extends InteractiveObject {
   target: Vector = null;
   speed: number = 1;
   attackRadius: number = 200;
-  name: string;
-  attackTarget: { damage: (amount: number) => void, position: IVector } = null;
-  player: number;
-  time: number = 0;
-  private stepIndex: number;
+  name:string;
+  attackTarget: {damage:(amount:number)=>void, position:IVector} = null;
+  player:number;
+  time: number= 0;
+  private _stepIndex: number;
+ // private stepIndex: number;
   private isActive: boolean;
   private isSelect: boolean;
 
   constructor() {
     super();
-    this.stepIndex = 0
+    this._stepIndex = 1
     this.isActive = false
   }
 
@@ -96,6 +97,7 @@ export class UnitObject extends InteractiveObject {
     }
     return false;
   }
+
 
   makeActive() {
     this.isActive = true
@@ -108,32 +110,55 @@ export class UnitObject extends InteractiveObject {
   isActiveUnit() {
     return this.isActive
   }
-
-
-
-
   step(delta: number, traceMap: TraceMap) {
     //fix logic atack and move
     this.time -= delta;
+    const stepIndex = Math.floor(this._stepIndex);
     if (this.target) {
       //TODO check Tile quarter-> offset insideTile
       const path = traceMap.getPath()
-      //this.activeUnits forEach=.....
-
-      if (path && this.stepIndex < path.length) {
-        this.position = new Vector(path[this.stepIndex].x * 55 + 20, path[this.stepIndex].y * 55 + 20)
-          .add(new Vector(path[this.stepIndex].x * 55 + 20, path[this.stepIndex].y * 55 + 20)
-            .sub(this.target).normalize().scale(-this.speed));
+//<<<<<<< HEAD
+//       //this.activeUnits forEach=.....
+//
+//       if (path && this.stepIndex < path.length) {
+//         this.position = new Vector(path[this.stepIndex].x * 55 + 20, path[this.stepIndex].y * 55 + 20)
+//           .add(new Vector(path[this.stepIndex].x * 55 + 20, path[this.stepIndex].y * 55 + 20)
+//             .sub(this.target).normalize().scale(-this.speed));
+// =======
+      if (path && stepIndex < path.length) {
+        const pathVector = new Vector(path[stepIndex].x * 55+55/2, path[stepIndex].y * 55+55/2)
+        /*this.position = pathVector.clone()
+          .add(pathVector
+            .sub(this.target).normalize().scale(-this.speed));*/
+            this.position = new Vector(this.position.x, this.position.y).add(new Vector(this.position.x, this.position.y).sub(pathVector).normalize().scale(-this.speed));
+         
+//>>>>>>> 2e95a760e7e212465a1264336b876a6b69294db7
 
         if (new Vector(this.position.x, this.position.y).sub(this.target).abs() < 5) {
           this.target = null;
         }
-        this.stepIndex++
-      }
-      else if (path && this.stepIndex == path.length) {
+// <<<<<<< HEAD
+//         this.stepIndex++
+//       }
+//       else if (path && this.stepIndex == path.length) {
+//         this.makeInactive()
+// =======
+        
+        //this._stepIndex+=0.1;
+        //теперь он ходит плавно
+        if (new Vector(this.position.x, this.position.y).sub(pathVector).abs()<this.speed*2){
+          this.position = pathVector.clone()/*
+          .add(pathVector
+            .sub(this.target).normalize().scale(-this.speed));*/
+            this._stepIndex+=1;
+        }
+      }else if(path && stepIndex == path.length){
         this.makeInactive()
       }
-    }
+//>>>>>>> 2e95a760e7e212465a1264336b876a6b69294db7
+      }
+
+
       // if (this.target){
       //   this.position = new Vector(this.position.x, this.position.y).add(new Vector(this.position.x, this.position.y).sub(this.target).normalize().scale(-this.speed));
       //   if (new Vector(this.position.x, this.position.y).sub(this.target).abs()<5){
@@ -146,16 +171,11 @@ export class UnitObject extends InteractiveObject {
     }
   }
 
-  updatePosition() {
-
-  }
-
-  clearStepIndex() {
-    console.log("index", this.stepIndex)
-    this.stepIndex = 0
-  }
-
-  attack(delta: number) {
+clearStepIndex(){
+    console.log("index",this._stepIndex)
+  this._stepIndex=1
+}
+  attack(delta:number){
     //fix logic atack and move
     if (this.attackTarget) {
       // console.log('atack');

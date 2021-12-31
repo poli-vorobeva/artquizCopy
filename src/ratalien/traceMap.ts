@@ -68,11 +68,12 @@ export class TraceMap {
   buildPath() {
     let matrixCopy=new Map(this.matrixMap)
     this.path && (this.path.length=0)
+    //пересмотрел последовательность, первые ходы прямые и они в приоритете по идее
     const steps = [
-      {x: -1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}, {x: 1, y: -1}, {x: -1, y: 0}, {x: 1, y: 0}, {
+       {x: -1, y: 0}, {x: 1, y: 0}, {
         x: 0,
         y: 1
-      }, {x: 0, y: -1}
+      }, {x: 0, y: -1}, {x: -1, y: -1}, {x: -1, y: 1}, {x: 1, y: 1}, {x: 1, y: -1},
     ]
     const pathForOne = (startPointIndex: number) => {
       let isFinished = false

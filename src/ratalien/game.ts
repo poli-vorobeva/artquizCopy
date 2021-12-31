@@ -5,6 +5,7 @@ import {Vector, IVector} from "../common/vector";
 import {GameSide} from "./gameSidePanel";
 import {MapObject, UnitObject} from "./interactives";
 import {BotPlayer} from "./botPlayer";
+import { tech } from "./techTree";
 import {GamePlayer, IBuildInfo} from "./gamePlayer";
 import {TraceMap} from "./traceMap";
 
@@ -108,8 +109,8 @@ export class Game extends Control {
       field.addObject(1, {name: 'barracs', mtx: buildMap.get('barracs')}, pos.x, pos.y);
     }
 
-    botPlayer.onUnit = () => {
-      field.addUnit(1, 'csu');
+    botPlayer.onUnit = ()=>{
+      field.addUnit(1, 'solder');
     }
 
     //botPlayer.
@@ -357,36 +358,20 @@ export class GameField extends Control {
     })
   }
 
-  addUnit(player: number, name: string) {
+//возможно, тут лучше передвать не нейм, а сам объект созданного солдата? 
+  addUnit(player:number, name:string){
     //TODO check is empty,else, check neighbor
     //  console.log(name);
     let unit = new UnitObject();
     //console.log(unit)
     unit.player = player;
-    unit.position = new Vector(20 * this.startUnitsPosition, 20 * this.startUnitsPosition); //for demo
-    this.startUnitsPosition++
-    if (name == 'msu') {
-      let barrac = Object.values(this.primaries[player]).find(it => it.name == 'ms');
-      if (barrac) {
-        unit.position = Vector.fromIVector({x: barrac.position.x * this.sz, y: barrac.position.y * this.sz});
-      }
+    unit.position = new Vector(20, 20); //for demo
+    const spawn = tech.units.filter(item => item.name == name)[0].spawn[0];
+    
+    let barrac = Object.values(this.primaries[player]).find(it=>it.name == spawn);
+    if (barrac){
+      unit.position = Vector.fromIVector({x:barrac.position.x*this.sz, y: barrac.position.y*this.sz});
     }
-
-    if (name == 'csu') {
-      let barrac = Object.values(this.primaries[player]).find(it => it.name == 'barracs');
-      if (barrac) {
-        unit.position = Vector.fromIVector({x: barrac.position.x * this.sz, y: barrac.position.y * this.sz});
-      }
-    }
-
-    if (name == 'tcu' || name == 'asd') {
-      let barrac = Object.values(this.primaries[player]).find(it => it.name == 'tc');
-      if (barrac) {
-        unit.position = Vector.fromIVector({x: barrac.position.x * this.sz, y: barrac.position.y * this.sz});
-      }
-    }
-
-
     unit.name = name;
     unit.onClick = () => {
       //this.unitClickHandler(unit)
@@ -440,7 +425,8 @@ export class GameField extends Control {
     this.modeCallback = callback;
   }
 
-  addObject(player: number, obj: { name: string, mtx: Array<Array<string>> }, x: number, y: number) {
+  addObject(player:number, obj:{name:string, mtx:Array<Array<string>>}, x:number, y:number){
+
     let object = new MapObject();
     object.tiles = obj.mtx.map(it => it.map(jt => parseInt(jt)));
     object.name = obj.name;
